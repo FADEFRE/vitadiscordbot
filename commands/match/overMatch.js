@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
 
 var teamChannelId = require('../util/teamChannel.js')
+const { refreshCache } = require('../util/uitlFunctions.js')
 
 module.exports = {
 
@@ -18,11 +19,11 @@ module.exports = {
 
     async execute(interaction) {
 
-        const { options, guild } = interaction
+        const { options } = interaction
+
+        await interaction.reply('Working on it');
 
         let categoryId = null
-        const STAFF_ID = process.env.STAFF_ID;
-        const BOT_ID = process.env.BOT_ID;
         const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
         const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
         const BACKUP_CHANNEL_ID = process.env.BACKUP_CHANNEL_ID;
@@ -34,54 +35,45 @@ module.exports = {
             categoryId = STREAM_B_CHANNEL_ID
         }
 
-        const category = guild.channels.cache.get(categoryId);
+        const category = interaction.guild.channels.cache.get(categoryId);
         const childrenIds = category.children.cache.map(c => c.id);
 
         if (childrenIds.length === 0) {
-            interaction.reply("finished: no channels exist");
+            interaction.editReply("finished: no channels exist");
             return
-        }
+        } 
+        else {
+            for (let index = 0; index < childrenIds.length; index++) {
+                const channelId = childrenIds[index];
+                
+                const GUILD_ID = process.env.GUILD_ID;
+                const guild = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
 
-        for (let index = 0; index < childrenIds.length; index++) {
-            const channelId = childrenIds[index];
-            
-            if (channelId !== '') {
-                const channel = await guild.channels
-                    .edit(channelId, { 
-                        permissionOverwrites: [
-                            {
-                                id: guild.id,
-                                deny: [PermissionFlagsBits.ViewChannel],
-                            },
-                            {
-                                id: STAFF_ID,
-                                allow: [PermissionFlagsBits.ViewChannel],
-                            },
-                            {
-                                id: BOT_ID,
-                                allow: [PermissionFlagsBits.ViewChannel],
-                            },
-                        ],
-                    })
-                    .then(c => { return c})
-                    
-                if (channel.type === ChannelType.GuildText) {
-                    channel.setParent(BACKUP_CHANNEL_ID);
-                } else {
-                    await wrapper(guild, channel)
+                if (channelId !== '') {
+                    const channel = await guild.channels
+                        .edit(channelId, { 
+                            reason: 'backup'
+                        })
+                        .then(c => { return c})
+                        
+                    if (channel.type === ChannelType.GuildText) {
+                        channel.setParent(BACKUP_CHANNEL_ID);
+                    } else {
+                        await refreshCache(interaction)
+                        await wrapper(interaction, channel)
+                    }
+                        
                 }
-                    
             }
+    
+    
+            interaction.editReply("moved channel from " + options.getString('stream_slot') + "-Stream to Backup");
         }
-
-
-        interaction.reply("moved channel from " + interaction.options.getString('stream_slot') + "-Stream to Backup");
     },
 }
 
 
-async function getTeam(guild, channel) {
-    const allRoles = await guild.roles.fetch().then(r => {return r})
+async function getTeam(allRoles, channel) {
     for (const role of allRoles) {
         if (role[1].name === channel.name) {
             return role[1]
@@ -89,8 +81,7 @@ async function getTeam(guild, channel) {
     }
 }
 
-async function getTeamChannelId(guild, channel) {
-    const allRoles = await guild.roles.fetch().then(r => {return r})
+async function getTeamChannelId(allRoles, channel) {
     for (const role of allRoles) {
         if (role[1].name === channel.name) {
             const teamName = role[1].name
@@ -108,22 +99,26 @@ async function getTeamChannelId(guild, channel) {
 }
 
 
-async function wrapper(guild, channel) {
-    const team = await getTeam(guild, channel)
-    const channelId = await getTeamChannelId(guild, channel)
-    await moveChannelMembersOfTeam(guild, team, channelId)
+async function wrapper(interaction, channel) {
+    const GUILD_ID = process.env.GUILD_ID;
+    const guild = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
+
+    const allRoles = await guild.roles.fetch().then(r => {return r})
+    const team = await getTeam(allRoles, channel)
+    const channelId = await getTeamChannelId(allRoles, channel)
+    await moveChannelMembersOfTeam(guild, team, channelId, channel)
     await deleteChannel(guild, channel)
 }
 
-async function moveChannelMembersOfTeam(guild, team, channelId) {
+async function moveChannelMembersOfTeam(guild, team, channelId, channel) {
     const role = await guild.roles.fetch(team.id).then(r => {return r})
     const membersOfRole = role.members.map(m => m)
     for (let index = 0; index < membersOfRole.length; index++) {
         const member = membersOfRole[index];
-        const memb = await guild.members.fetch({user: member.user, force: true}).then(m => {return m})
+        const membRole = await guild.members.fetch({user: member.user, force: true}).then(m => {return m})
 
         try {
-            memb.voice.setChannel(channelId).catch(err => {return})
+            await membRole.voice.setChannel(channelId).catch(err => {return})
         } catch (error) {
             console.log("test")
         }

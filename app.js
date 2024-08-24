@@ -2,11 +2,24 @@ require('dotenv').config(); //This will be used to store private keys
 const path = require('path');
 const fs = require('fs');
 const deployCommands = require('./deploy/deployCommands');
-const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, Options, Routes } = require('discord.js');
 
 const BOT_TOKEN = process.env.CLIENT_TOKEN;
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ 
+	intents: [GatewayIntentBits.Guilds],
+	// makeCache: Options.cacheWithLimits({
+	// 	...Options.DefaultMakeCacheSettings,
+	// 	ReactionManager: 0,
+	// 	GuildMemberManager: {
+	// 		maxSize: 0,
+	// 		keepOverLimit: member => member.id === member.client.user.id,
+	// 	},
+	// 	UserManager: {
+	// 		maxSize: 0,
+	// 	},
+	// }),
+});
 
 client.commands = new Collection();
 

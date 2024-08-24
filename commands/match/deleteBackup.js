@@ -1,12 +1,13 @@
-const { SlashCommandBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
-var teamChannelId = require('../util/teamChannel.js')
 
 module.exports = {
 
     data: new SlashCommandBuilder()
         .setName('deletebackup')
-        .setDescription('deletes bakcup'),
+        .setDescription('deletes bakcup')
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(0),
 
     async execute(interaction) {
         const BACKUP_CHANNEL_ID = process.env.BACKUP_CHANNEL_ID;
@@ -21,28 +22,7 @@ module.exports = {
 
         childrenIds.forEach(channelId => {
             if (channelId !== '') {
-                interaction.guild.channels
-                    .edit(channelId, { 
-                        permissionOverwrites: [
-                            {
-                                id: interaction.guild.id,
-                                deny: [PermissionFlagsBits.ViewChannel],
-                            },
-                            {
-                                id: STAFF_ID,
-                                allow: [PermissionFlagsBits.ViewChannel],
-                            },
-                            {
-                                id: BOT_ID,
-                                allow: [PermissionFlagsBits.ViewChannel],
-                            },
-                        ],
-                    })
-                    .then((channel) => {
-                        interaction.guild.channels
-                            .delete(channel.id)
-                            .then()
-                    })
+                interaction.guild.channels.delete(channelId)
             }
         });
 

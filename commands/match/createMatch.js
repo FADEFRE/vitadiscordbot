@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, ChannelType, PermissionsBitField } = require('discord.js');
+const { SlashCommandBuilder, ChannelType, PermissionsBitField, PresenceUpdateStatus } = require('discord.js');
 var teamTags = require('../util/teamTag.js')
 var teamChannels = require('../util/teamChannel.js')
+const { refreshCache } = require('../util/uitlFunctions.js')
 
 module.exports = {
 
@@ -32,7 +33,9 @@ module.exports = {
 
         const { options, guild } = interaction
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("no permissions")
+        await interaction.reply('Working on it');
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.editReply("no permissions")
         else {
             const text = options.getString('name');
             const team_1 = options.getRole('team_1');
@@ -42,16 +45,12 @@ module.exports = {
             let groupId = null
             const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
             const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
-            const STREAM_A_ID = process.env.STREAM_A_ID;
-            const STREAM_B_ID = process.env.STREAM_B_ID;
             
             if (options.getString('stream_slot') === 'A') {
                 categoryId = STREAM_A_CHANNEL_ID
-                groupId = STREAM_A_ID
             } 
             else if (options.getString('stream_slot') === 'B') {
                 categoryId = STREAM_B_CHANNEL_ID
-                groupId = STREAM_B_ID
             } 
 
             const tag_1 = await getTeamTag(team_1)
@@ -70,11 +69,13 @@ module.exports = {
 
             const channelId_1 = await createVoiceChannel(guild, team_1, categoryId);
             const channelId_2 = await createVoiceChannel(guild, team_2, categoryId);
+            
+            await refreshCache(interaction)
+            await moveChannelMembersOfTeam(interaction, options.getRole('team_1'), channelId_1)
+            await refreshCache(interaction)
+            await moveChannelMembersOfTeam(interaction, options.getRole('team_2'), channelId_2)
 
-            await moveChannelMembersOfTeam(guild, team_1, channelId_1)
-            await moveChannelMembersOfTeam(guild, team_2, channelId_2)
-
-            interaction.reply("Channel: "+ channelName );
+            interaction.editReply("Channel: "+ channelName );
         }
     },
 
@@ -87,19 +88,6 @@ async function getTeamTag(team) {
         const element = allTeamNameKeys[index];
         if (element === teamName) {
             const entries = Object.entries(teamTags)
-            return entries[index][1]
-        }
-        
-    }
-}
-
-async function getTeamChannelIds(team) {
-    const teamName = team.name
-    const allTeamNameKeys = Object.keys(teamChannels)
-    for (let index = 0; index < allTeamNameKeys.length; index++) {
-        const element = allTeamNameKeys[index];
-        if (element === teamName) {
-            const entries = Object.entries(teamChannels)
             return entries[index][1]
         }
         
@@ -119,13 +107,17 @@ async function createVoiceChannel(guild, team, categoryId) {
         });
 }
 
-async function moveChannelMembersOfTeam(guild, team, channelId) {
+async function moveChannelMembersOfTeam(interaction, team, channelId) {
+    
+    const GUILD_ID = process.env.GUILD_ID;
+    const guild = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
+
     const role = await guild.roles.fetch(team.id).then(r => {return r})
     const membersOfRole = role.members.map(m => m)
+
     for (let index = 0; index < membersOfRole.length; index++) {
         const member = membersOfRole[index];
         const memb = await guild.members.fetch({user: member.user, force: true}).then(m => {return m})
-
         try {
             memb.voice.setChannel(channelId).catch(err => {return})
         } catch (error) {
