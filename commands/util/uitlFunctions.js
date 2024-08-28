@@ -27,7 +27,7 @@ module.exports = {
         const g2 = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
         const obj2 = g2.members.cache
         const obj2Roles = g2.roles.cache
-        if (obj2.size === 0 && obj2Roles.size === 0 ) {
+        if (obj2.size === 0 && obj2Roles.size === 1 ) {
             console.log("CACHE CLEARED")
         } else {
             console.log("CACHE CLEARING FAILED")
@@ -55,5 +55,6 @@ module.exports = {
             // console.log("------------------------------------------------------------------------------------------------------------------")
         }
         // console.log("roles end------------------------------------")
+        console.log("CACHE CLEARING ENDED")
     }
 }

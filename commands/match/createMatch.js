@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, ChannelType, PermissionsBitField, PresenceUpdateStatus } = require('discord.js');
+const { SlashCommandBuilder, ChannelType, PermissionsBitField } = require('discord.js');
 var teamTags = require('../util/teamTag.js')
-var teamChannels = require('../util/teamChannel.js')
 const { refreshCache } = require('../util/uitlFunctions.js')
 
 module.exports = {
@@ -42,9 +41,10 @@ module.exports = {
             const team_2 = options.getRole('team_2');
             
             let categoryId = null
-            let groupId = null
             const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
             const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
+            const MATCHMANAGER_ID = process.env.MATCHMANAGER_ID;
+            const matchmangerRole = await guild.roles.fetch(MATCHMANAGER_ID)
             
             if (options.getString('stream_slot') === 'A') {
                 categoryId = STREAM_A_CHANNEL_ID
@@ -58,22 +58,33 @@ module.exports = {
 
             const channelName = tag_1 + " " + tag_2 + " " + text
 
-            guild.channels
+            const channel = await guild.channels
                 .create({
                     name: channelName,
                     type: ChannelType.GuildText,
                 })
                 .then((channel) => {
                     channel.setParent(categoryId);
+                    return channel
                 });
 
-            const channelId_1 = await createVoiceChannel(guild, team_1, categoryId);
-            const channelId_2 = await createVoiceChannel(guild, team_2, categoryId);
+            await channel.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
+            await channel.permissionOverwrites.edit(team_1, { "ViewChannel": true })
+            await channel.permissionOverwrites.edit(team_2, { "ViewChannel": true })
+                
+
+            const channel_1 = await createVoiceChannel(guild, team_1, categoryId);
+            await channel_1.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
+            await channel_1.permissionOverwrites.edit(team_1, { "ViewChannel": true })
+
+            const channel_2 = await createVoiceChannel(guild, team_2, categoryId);
+            await channel_2.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
+            await channel_2.permissionOverwrites.edit(team_2, { "ViewChannel": true })
             
             await refreshCache(interaction)
-            await moveChannelMembersOfTeam(interaction, options.getRole('team_1'), channelId_1)
+            await moveChannelMembersOfTeam(interaction, options.getRole('team_1'), channel_1.id)
             await refreshCache(interaction)
-            await moveChannelMembersOfTeam(interaction, options.getRole('team_2'), channelId_2)
+            await moveChannelMembersOfTeam(interaction, options.getRole('team_2'), channel_2.id)
 
             interaction.editReply("Channel: "+ channelName );
         }
@@ -103,7 +114,8 @@ async function createVoiceChannel(guild, team, categoryId) {
         })
         .then((channel) => {
             channel.setParent(categoryId);
-            return channel.id
+            channel.lockPermissions()
+            return channel
         });
 }
 

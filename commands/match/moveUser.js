@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, ChannelType, PermissionsBitField, PresenceUpdateStatus } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 var teamTags = require('../util/teamTag.js')
 var teamChannels = require('../util/teamChannel.js')
+const { refreshCache } = require('../util/uitlFunctions.js')
 
 module.exports = {
 
@@ -12,30 +13,33 @@ module.exports = {
 
         await interaction.reply('Working on it');
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.editReply("no permissions")
-        else {
-            const member = interaction.member
+        const allTeamNameKeys = Object.keys(teamChannels)
+        
+        await refreshCache(interaction)
 
-            const allTeamNameKeys = Object.keys(teamChannels)
+        
+        const id = interaction.member.user.id
+        const GUILD_ID = process.env.GUILD_ID;
+        const g = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
+        const memb = await g.members.fetch(id).then(m => {return m})
+        const member = await g.members.fetch({user: memb, force: true}).then(m => {return m})
 
-            for (let index = 0; index < allTeamNameKeys.length; index++) {
-                const element = allTeamNameKeys[index];
-                if (interaction.member.roles.cache.some(role => role.name === element)) {
-                    const entries = Object.entries(teamChannels)
-                    const channelId =  entries[index][1]
-                    try {
-                        member.voice.setChannel(channelId).catch(err => {console.log("not connected to voice")})
-                        interaction.editReply("Moved "+ member.user.username + " to their Team Channel");
-                        return
-                    } catch (error) {
-                        console.log("test")
-                    }
-                }
-                else {
-                    interaction.editReply("Could not find Team");
+        for (let index = 0; index < allTeamNameKeys.length; index++) {
+            const element = allTeamNameKeys[index];
+            if (member.roles.cache.some(role => role.name === element)) {
+                const entries = Object.entries(teamChannels)
+                const channelId = entries[index][1]
+                try {
+                    member.voice.setChannel(channelId).catch(err => {console.log("not connected to voice")})
+                    interaction.editReply("Moved '"+ member.user.globalName + "' to their Team Channel");
+                    return
+                } catch (error) {
+                    console.log("test")
                 }
             }
         }
-    },
+
+        interaction.editReply("Could not find Team");
+    }
 
 }

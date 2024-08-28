@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, ChannelType } = require('discord.js');
 
 var teamChannelId = require('../util/teamChannel.js')
 const { refreshCache } = require('../util/uitlFunctions.js')
@@ -43,6 +43,8 @@ module.exports = {
             return
         } 
         else {
+
+
             for (let index = 0; index < childrenIds.length; index++) {
                 const channelId = childrenIds[index];
                 
@@ -57,7 +59,9 @@ module.exports = {
                         .then(c => { return c})
                         
                     if (channel.type === ChannelType.GuildText) {
-                        channel.setParent(BACKUP_CHANNEL_ID);
+                        await channel.send("------- Match ist beendet -------")
+                        await channel.setParent(BACKUP_CHANNEL_ID)
+                        await channel.lockPermissions()
                     } else {
                         await refreshCache(interaction)
                         await wrapper(interaction, channel)
@@ -106,11 +110,11 @@ async function wrapper(interaction, channel) {
     const allRoles = await guild.roles.fetch().then(r => {return r})
     const team = await getTeam(allRoles, channel)
     const channelId = await getTeamChannelId(allRoles, channel)
-    await moveChannelMembersOfTeam(guild, team, channelId, channel)
+    await moveChannelMembersOfTeam(guild, team, channelId)
     await deleteChannel(guild, channel)
 }
 
-async function moveChannelMembersOfTeam(guild, team, channelId, channel) {
+async function moveChannelMembersOfTeam(guild, team, channelId) {
     const role = await guild.roles.fetch(team.id).then(r => {return r})
     const membersOfRole = role.members.map(m => m)
     for (let index = 0; index < membersOfRole.length; index++) {

@@ -7,7 +7,7 @@ const { Client, Collection, Events, GatewayIntentBits, Options, Routes } = requi
 const BOT_TOKEN = process.env.CLIENT_TOKEN;
 
 const client = new Client({ 
-	intents: [GatewayIntentBits.Guilds],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 	// makeCache: Options.cacheWithLimits({
 	// 	...Options.DefaultMakeCacheSettings,
 	// 	ReactionManager: 0,
