@@ -51,24 +51,63 @@ client.once(Events.ClientReady, c => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand()) return;
+	if (interaction.isChatInputCommand()) {
+		const command = interaction.client.commands.get(interaction.commandName);
 
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
+		if (!command) {
+			console.error(`No command matching ${interaction.commandName} was found.`);
+			return;
+		}
+	
+		try {
+			await command.execute(interaction);
+		} catch (error) {
+			console.error(error);
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+			} else {
+				await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+			}
+		}
 	}
 
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-		} else {
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	else if (interaction.isButton()) {
+		if (interaction.customId === 'moveInterview') {
+
+			await interaction.reply("trying to move")
+
+			let channelId = null
+			const REGIE_CHAT_A_ID = process.env.REGIE_CHAT_A_ID;
+			const REGIE_CHAT_B_ID = process.env.REGIE_CHAT_B_ID;
+			const LIVE_A_ID = process.env.LIVE_A_ID;
+			const LIVE_B_ID = process.env.LIVE_B_ID;
+
+			if (interaction.message.channelId === REGIE_CHAT_A_ID) {
+				channelId = LIVE_A_ID
+			} 
+			else if (interaction.message.channelId === REGIE_CHAT_B_ID) {
+				channelId = LIVE_B_ID
+			}
+			//testing channel
+			else if (interaction.channel.parentId === '1279535661740986471') {
+				channelId = LIVE_B_ID
+			}
+			else {
+				await interaction.editReply("fuck")
+			}
+
+			const userId = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'ID').map((field) => field.value)[0]
+			const memb = await interaction.guild.members.fetch(userId).then(m => {return m})
+			try {
+				await memb.voice.setChannel(channelId).catch(err => {interaction.editReply("User " + memb.user.displayName + " not in Voice Channel"); return})
+			} catch (error) {
+				console.log("test")
+			}
 		}
+	}
+
+	else {
+		return
 	}
 });
 
