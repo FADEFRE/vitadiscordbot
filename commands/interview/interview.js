@@ -11,11 +11,30 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('ready')
-                .setDescription('Füge link ein und sei bereit')),
+                .setDescription('Sei bereit')),
 
     async execute(interaction) {
 
         const { options, guild } = interaction
+
+        const VDO_NINJA_LINK_A = process.env.VDO_NINJA_LINK_A;
+        const VDO_NINJA_LINK_B = process.env.VDO_NINJA_LINK_B;
+        const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
+        const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
+
+        //--------------------------------------------------------------------
+
+        let interviewLink = null
+
+        if (interaction.channel.parentId === STREAM_A_CHANNEL_ID) {
+            interviewLink = VDO_NINJA_LINK_A
+        } 
+        else if (interaction.channel.parentId === STREAM_B_CHANNEL_ID) {
+            interviewLink = VDO_NINJA_LINK_B
+        }
+        else {
+            return await interaction.reply("Du kannst leider kein Interview geben :(")
+        }
 
         //--------------------------------------------------------------------
 
@@ -23,7 +42,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor(0x0099FF)
-                .setTitle('Interview')
+                .setTitle('Interview Setup')
                 .setDescription('Some description here')
                 .addFields(
                     { name: 'Regular field title', value: 'Some value here' },
