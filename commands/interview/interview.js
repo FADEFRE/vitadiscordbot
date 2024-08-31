@@ -92,7 +92,7 @@ module.exports = {
 
             const interviewTeam = await findTeamName(memberRoles)
 
-            
+            await member.roles.add(roleId).then(() => {})
 
             
 
