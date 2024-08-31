@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 var teamTags = require('../util/teamTag.js')
 var teamChannels = require('../util/teamChannel.js')
 const { refreshCache } = require('../util/uitlFunctions.js')
@@ -12,6 +12,9 @@ module.exports = {
     async execute(interaction) {
 
         await interaction.reply('Working on it');
+
+        //early return
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.MoveMembers)) return interaction.editReply("no permissions")
 
         const allTeamNameKeys = Object.keys(teamChannels)
         

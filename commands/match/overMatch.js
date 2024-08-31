@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, ChannelType, PermissionsBitField } = require('discord.js');
 
 var teamChannelId = require('../util/teamChannel.js')
 const { refreshCache } = require('../util/uitlFunctions.js')
@@ -20,8 +20,11 @@ module.exports = {
     async execute(interaction) {
 
         const { options } = interaction
-
+        
         await interaction.reply('Working on it');
+
+        //early return
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.MoveMembers)) return interaction.editReply("no permissions")
 
         let categoryId = null
         const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
