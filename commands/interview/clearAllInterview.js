@@ -1,6 +1,4 @@
 const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-var teamChannels = require('../util/teamChannel.js')
-const { refreshCache } = require('../util/uitlFunctions.js')
 
 module.exports = {
 
