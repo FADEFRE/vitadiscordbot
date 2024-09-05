@@ -106,6 +106,24 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 
+	else if (interaction.isAutocomplete()) { 
+		const command = client.commands.get(interaction.commandName);
+
+		if (!command) return console.log('Command was not found');
+
+		if (!command.autocomplete) {
+			return console.error(
+			`No autocomplete handler was found for the ${interaction.commandName} command.`,
+			);
+		}
+	
+		try {
+			await command.autocomplete(interaction);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	else {
 		return
 	}
