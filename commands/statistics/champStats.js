@@ -207,8 +207,8 @@ module.exports = {
                 .setColor(0x0099FF)
                 .setTitle(response.data.name)
                 .addFields(
-                    { name: 'Pick/Ban Rate', value: String(response.data.averagePickBan) },
-                    { name: 'Pick Rate', value: String(response.data.averagePick) },
+                    { name: 'Pick/Ban Rate', value: String(response.data.averagePickBan.toFixed(2) + "%") },
+                    { name: 'Pick Rate', value: String(response.data.averagePick.toFixed(2) + "%") },
                     { name: '\u200B', value: '\u200B' },
                     { name: 'Wins', value: String(response.data.wins), inline: true },
                     { name: 'Loss', value: String(response.data.loss), inline: true },

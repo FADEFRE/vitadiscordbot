@@ -59,19 +59,19 @@ module.exports = {
                 .setDescription('\u200B')
                 .addFields(
                     { name: 'Highest Pick Rate', value: '\u200B' },
-                    { name: String(response.data.highestPick_Champions_names?.[0]), value: String(response.data.highestPick_Percentage?.[0]), inline: true },
-                    { name: String(response.data.highestPick_Champions_names?.[1]), value: String(response.data.highestPick_Percentage?.[1]), inline: true },
-                    { name: String(response.data.highestPick_Champions_names?.[2]), value: String(response.data.highestPick_Percentage?.[2]), inline: true },
+                    { name: String(response.data.highestPick_Champions_names?.[0]), value: String(response.data.highestPick_Percentage?.[0].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestPick_Champions_names?.[1]), value: String(response.data.highestPick_Percentage?.[1].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestPick_Champions_names?.[2]), value: String(response.data.highestPick_Percentage?.[2].toFixed(2) + "%"), inline: true },
                     { name: '\u200B', value: '\u200B' },
                     { name: 'Highest Ban Rate', value: '\u200B' },
-                    { name: String(response.data.highestBan_Champions_names?.[0]), value: String(response.data.highestBan_Percentage?.[0]), inline: true },
-                    { name: String(response.data.highestBan_Champions_names?.[1]), value: String(response.data.highestBan_Percentage?.[1]), inline: true },
-                    { name: String(response.data.highestBan_Champions_names?.[2]), value: String(response.data.highestBan_Percentage?.[2]), inline: true },
+                    { name: String(response.data.highestBan_Champions_names?.[0]), value: String(response.data.highestBan_Percentage?.[0].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestBan_Champions_names?.[1]), value: String(response.data.highestBan_Percentage?.[1].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestBan_Champions_names?.[2]), value: String(response.data.highestBan_Percentage?.[2].toFixed(2) + "%"), inline: true },
                     { name: '\u200B', value: '\u200B' },
                     { name: 'Highest Ban Rate Against', value: '\u200B' },
-                    { name: String(response.data.highestBannedAgainst_Champions_names?.[0]), value: String(response.data.highestBannedAgainst_Percentage?.[0]), inline: true },
-                    { name: String(response.data.highestBannedAgainst_Champions_names?.[1]), value: String(response.data.highestBannedAgainst_Percentage?.[1]), inline: true },
-                    { name: String(response.data.highestBannedAgainst_Champions_names?.[2]), value: String(response.data.highestBannedAgainst_Percentage?.[2]), inline: true },
+                    { name: String(response.data.highestBannedAgainst_Champions_names?.[0]), value: String(response.data.highestBannedAgainst_Percentage?.[0].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestBannedAgainst_Champions_names?.[1]), value: String(response.data.highestBannedAgainst_Percentage?.[1].toFixed(2) + "%"), inline: true },
+                    { name: String(response.data.highestBannedAgainst_Champions_names?.[2]), value: String(response.data.highestBannedAgainst_Percentage?.[2].toFixed(2) + "%"), inline: true },
                 )
 
         await channel.send({ embeds: [embedSetup]})
