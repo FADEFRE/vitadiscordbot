@@ -37,7 +37,7 @@ module.exports = {
 
         //--------------------------------------------------------------------
 
-        let interviewLink = null 
+        let interviewLink = "" 
         let roleId = null
         let regieChannel = null
 
@@ -68,13 +68,12 @@ module.exports = {
             const embedSetup = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .setTitle('Interview Setup')
-                .setDescription('Some description here')
+                .setDescription('\u200B')
                 .addFields(
-                    { name: 'Regular field title', value: 'Some value here' },
-                    { name: '\u200B', value: '\u200B' },
-                    { name: 'Inline field title', value: 'Some value here', inline: true },
-                    { name: 'Inline field title', value: 'Some value here', inline: true },
                     { name: '\u200B', value: interviewLink},
+                    { name: '\u200B', value: '1. Öffne den Link\n2. Gib deinen Namen ein.\n3. Es öffnet sich eine Seite, dort klickst du auf Join Room with Camera. \n4. Bestätige oben links im Browser, dass die Seite auf dein Mikrofon und deine Kamera zugreifen darf. \n5. Wähle in der Oberfläche dein Mikrofon und deine Kamera aus. \n6. Wenn du eine Kamera nutzt, klick unter dem Video auf das Zahnrad und stell auf High Resolution. \n7. Danach einfach auf den Start-Button klicken.' },
+                    { name: '\u200B', value: '\u200B' },
+                    { name: 'Hinweis', value: 'Falls du schon mal an einem Interview teilgenommen hast und die Meldung kommt, ob du die letzte Sitzung wiederherstellen willst – klick auf "Cancel".' },
                 )
 
             await interaction.reply({ embeds: [embedSetup]});
@@ -106,8 +105,8 @@ module.exports = {
                     { name: 'Name', value: options.getString('real_name'), inline: true },
                     { name: 'Team', value: interviewTeam.split("] ").pop()},
                     { name: '\u200B', value: '\u200B' },
-                    { name: 'VDO Ninja Link', value: interviewLink},
-                    { name: '\u200B', value: '\u200B' },
+                    // { name: 'VDO Ninja Link', value: interviewLink},
+                    // { name: '\u200B', value: '\u200B' },
                     { name: '\u200B', value: '\u200B' },
                     { name: 'ID', value: member.user.id },
                 )

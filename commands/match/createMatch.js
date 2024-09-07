@@ -20,7 +20,9 @@ module.exports = {
             .setRequired(true)
             .addChoices(
                 { name: 'A-Stream', value: 'A'},
-                { name: 'B-Stream', value: 'B'}
+                { name: 'B-Stream', value: 'B'},
+                { name: 'No-Stream-1', value: 'No_One'},
+                { name: 'No-Stream-2', value: 'No_Two'}
             )
         )
         .addStringOption(option => option.setName('name')
@@ -45,6 +47,8 @@ module.exports = {
         let categoryId = null
         const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
         const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
+        const STREAM_NO_1_CHANNEL_ID = process.env.STREAM_NO_1_CHANNEL_ID;
+        const STREAM_NO_2_CHANNEL_ID = process.env.STREAM_NO_2_CHANNEL_ID;
         const MATCHMANAGER_ID = process.env.MATCHMANAGER_ID;
         const matchmangerRole = await guild.roles.fetch(MATCHMANAGER_ID)
         
@@ -53,7 +57,13 @@ module.exports = {
         } 
         else if (options.getString('stream_slot') === 'B') {
             categoryId = STREAM_B_CHANNEL_ID
-        } 
+        }
+        else if (options.getString('stream_slot') === 'No_One') {
+            categoryId = STREAM_NO_1_CHANNEL_ID
+        }
+        else if (options.getString('stream_slot') === 'No_Two') {
+            categoryId = STREAM_NO_2_CHANNEL_ID
+        }
 
         const tag_1 = await getTeamTag(team_1)
         const tag_2 = await getTeamTag(team_2)
@@ -76,10 +86,12 @@ module.exports = {
             
 
         const channel_1 = await createVoiceChannel(guild, team_1, categoryId);
+        //await channel_1.lockPermissions()
         await channel_1.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
         await channel_1.permissionOverwrites.edit(team_1, { "ViewChannel": true })
 
         const channel_2 = await createVoiceChannel(guild, team_2, categoryId);
+        //await channel_2.lockPermissions()
         await channel_2.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
         await channel_2.permissionOverwrites.edit(team_2, { "ViewChannel": true })
         
@@ -115,8 +127,7 @@ async function createVoiceChannel(guild, team, categoryId) {
             type: ChannelType.GuildVoice,
         })
         .then((channel) => {
-            channel.setParent(categoryId);
-            channel.lockPermissions()
+            channel.setParent(categoryId)
             return channel
         });
 }

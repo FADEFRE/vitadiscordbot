@@ -12,14 +12,7 @@ module.exports = {
 
         const response = await axios.get("http://localhost:8090/api/team")
 
-        const log = response.data.map(team => team)
-
-        console.log(log[0])
-
         const reply = response.data.map(team => team.discordName)
-
-        console.log(reply[0])
-
         
         let str = ""
         for (let index = 0; index < reply.length; index++) {

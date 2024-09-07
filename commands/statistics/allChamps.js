@@ -14,8 +14,6 @@ module.exports = {
 
         const reply = response.data.map(champ => champ.name)
 
-        console.log(reply[0])
-
         await interaction.channel.send("printing all " + reply.length + " champions")
         for (let index = 0; index < reply.length; index++) {
             const element = reply[index];

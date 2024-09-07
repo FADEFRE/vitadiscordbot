@@ -16,8 +16,6 @@ module.exports = {
 
         const reply = response.data.map(player => player)
 
-        console.log(reply[0])
-
         const embedSetup = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .setTitle("All Mvps:")

@@ -13,7 +13,9 @@ module.exports = {
             .setRequired(true)
             .addChoices(
                 { name: 'A-Stream', value: 'A'},
-                { name: 'B-Stream', value: 'B'}
+                { name: 'B-Stream', value: 'B'},
+                { name: 'No-Stream-1', value: 'No_One'},
+                { name: 'No-Stream-2', value: 'No_Two'}
             )
         ),
 
@@ -29,6 +31,8 @@ module.exports = {
         let categoryId = null
         const STREAM_A_CHANNEL_ID = process.env.STREAM_A_CHANNEL_ID;
         const STREAM_B_CHANNEL_ID = process.env.STREAM_B_CHANNEL_ID;
+        const STREAM_NO_1_CHANNEL_ID = process.env.STREAM_NO_1_CHANNEL_ID;
+        const STREAM_NO_2_CHANNEL_ID = process.env.STREAM_NO_2_CHANNEL_ID;
         const BACKUP_CHANNEL_ID = process.env.BACKUP_CHANNEL_ID;
 
         if (options.getString('stream_slot') === 'A') {
@@ -36,6 +40,12 @@ module.exports = {
         } 
         else if (options.getString('stream_slot') === 'B') {
             categoryId = STREAM_B_CHANNEL_ID
+        }
+        else if (options.getString('stream_slot') === 'No_One') {
+            categoryId = STREAM_NO_1_CHANNEL_ID
+        }
+        else if (options.getString('stream_slot') === 'No_Two') {
+            categoryId = STREAM_NO_2_CHANNEL_ID
         }
 
         const category = interaction.guild.channels.cache.get(categoryId);

@@ -51,8 +51,6 @@ module.exports = {
 
         const response = await axios.get("http://localhost:8090/api/team/" + name)
 
-        console.log(response.data)
-
         const embedSetup = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .setTitle(response.data.name)
