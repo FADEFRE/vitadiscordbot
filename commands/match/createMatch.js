@@ -79,11 +79,11 @@ module.exports = {
                 channel.setParent(categoryId);
                 return channel
             });
-
+        
         await channel.permissionOverwrites.edit(matchmangerRole, { "ViewChannel": true })
         await channel.permissionOverwrites.edit(team_1, { "ViewChannel": true })
         await channel.permissionOverwrites.edit(team_2, { "ViewChannel": true })
-            
+        await channel.send("Bitte euer Roster für dieses Game mit ingame name (und ggf Discord ) hier reinschreiben " + `<@&${team_1.id}>` + ` <@&${team_2.id}>`)
 
         const channel_1 = await createVoiceChannel(guild, team_1, categoryId);
         //await channel_1.lockPermissions()

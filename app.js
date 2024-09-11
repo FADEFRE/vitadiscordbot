@@ -99,7 +99,10 @@ client.on(Events.InteractionCreate, async interaction => {
 			const userId = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'ID').map((field) => field.value)[0]
 			const memb = await interaction.guild.members.fetch(userId).then(m => {return m})
 			try {
-				await memb.voice.setChannel(channelId).catch(err => {interaction.editReply("User " + memb.user.displayName + " not in Voice Channel"); return})
+				await memb.voice
+					.setChannel(channelId)
+					.catch(err => {interaction.editReply("User " + memb.user.displayName + " not in Voice Channel"); return})
+				await interaction.editReply("moved")
 			} catch (error) {
 				console.log("test")
 			}

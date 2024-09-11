@@ -43,17 +43,15 @@ module.exports = {
 
         const channel = await interaction.guild.channels.fetch(liveChannel)
         const allMembersInChannel = await channel.members.map((m) => m.user.id)
+        await refreshCache(interaction)
         const interviewMember = await getInterviewPartner(interaction, allMembersInChannel, interviewRole)
         
         if (!interviewMember) {
             return await interaction.editReply("Kein Interview Partner mehr im Channel :(")
         }
         
-
         const allTeamNameKeys = Object.keys(teamChannels)
         
-        await refreshCache(interaction)
-
         const id = interviewMember.user.id
         const GUILD_ID = process.env.GUILD_ID;
         const g = await interaction.client.guilds.fetch(GUILD_ID).then(gi => {return gi})
@@ -67,8 +65,10 @@ module.exports = {
                 const channelId = entries[index][1]
                 try {
                     member.roles.remove(interviewRole).then(() => {})
-                    member.voice.setChannel(channelId).catch(err => {console.log("not connected to voice")})
-                    interaction.editReply("Moved '"+ member.user.globalName + "' to their Team Channel");
+                    member.voice
+                        .setChannel(channelId)
+                        .then(interaction.editReply("Moved '"+ member.user.globalName + "' to their Team Channel"))
+                        .catch(err => {console.log("not connected to voice")})
                     return
                 } catch (error) {
                     console.log("test")

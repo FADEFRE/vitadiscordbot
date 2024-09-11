@@ -130,10 +130,14 @@ async function wrapper(interaction, channel) {
 async function moveChannelMembersOfTeam(guild, team, channelId) {
     const role = await guild.roles.fetch(team.id).then(r => {return r})
     const membersOfRole = role.members.map(m => m)
+
+    const INTERVIEW_A_ID = process.env.INTERVIEW_A_ID;
+    const INTERVIEW_B_ID = process.env.INTERVIEW_B_ID;
+
     for (let index = 0; index < membersOfRole.length; index++) {
         const member = membersOfRole[index];
         const membRole = await guild.members.fetch({user: member.user, force: true}).then(m => {return m})
-
+        if (membRole.roles.cache.some(role => role.id === INTERVIEW_A_ID || role.id === INTERVIEW_B_ID)) { continue }
         try {
             await membRole.voice.setChannel(channelId).catch(err => {return})
         } catch (error) {
