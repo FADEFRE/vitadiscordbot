@@ -105,9 +105,8 @@ module.exports = {
                     { name: 'Name', value: options.getString('real_name'), inline: true },
                     { name: 'Team', value: interviewTeam.split("] ").pop()},
                     { name: '\u200B', value: '\u200B' },
-                    // { name: 'VDO Ninja Link', value: interviewLink},
-                    // { name: '\u200B', value: '\u200B' },
                     { name: '\u200B', value: '\u200B' },
+                    { name: 'TeamFull', value: interviewTeam },
                     { name: 'ID', value: member.user.id },
                 )
 

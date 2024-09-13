@@ -2,23 +2,13 @@ require('dotenv').config(); //This will be used to store private keys
 const path = require('path');
 const fs = require('fs');
 const deployCommands = require('./deploy/deployCommands');
-const { Client, Collection, Events, GatewayIntentBits, Options, Routes } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, Options, Routes, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle  } = require('discord.js');
+var teamChannelId = require('./commands/util/teamChannel.js')
 
 const BOT_TOKEN = process.env.CLIENT_TOKEN;
 
 const client = new Client({ 
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
-	// makeCache: Options.cacheWithLimits({
-	// 	...Options.DefaultMakeCacheSettings,
-	// 	ReactionManager: 0,
-	// 	GuildMemberManager: {
-	// 		maxSize: 0,
-	// 		keepOverLimit: member => member.id === member.client.user.id,
-	// 	},
-	// 	UserManager: {
-	// 		maxSize: 0,
-	// 	},
-	// }),
 });
 
 client.commands = new Collection();
@@ -33,7 +23,6 @@ for (const folder of commandFolders) {
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
-		// Set a new item in the Collection with the key as the command name and the value as the exported module
 		if ('data' in command && 'execute' in command) {
 			client.commands.set(command.data.name, command);
 		} else {
@@ -97,7 +86,65 @@ client.on(Events.InteractionCreate, async interaction => {
 			}
 
 			const userId = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'ID').map((field) => field.value)[0]
+			const teamName = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'TeamFull').map((field) => field.value)[0]
 			const memb = await interaction.guild.members.fetch(userId).then(m => {return m})
+
+			const embedReply = new EmbedBuilder()
+                .setColor(0x0099FF)
+                .addFields(
+                    { name: 'Spieler', value: memb.nickname},
+                    { name: 'TeamName', value: teamName},
+                    { name: 'ID', value: userId },
+                )
+
+			const moveButton = new ButtonBuilder()
+                .setCustomId('returnInterview')
+                .setLabel('Move Interview Partner back to their Team Channel')
+                .setStyle(ButtonStyle.Success);
+
+            const row = new ActionRowBuilder()
+                .addComponents(moveButton);
+
+			try {
+				await memb.voice
+					.setChannel(channelId)
+					.catch(err => {interaction.editReply("User " + memb.user.displayName + " not in Voice Channel"); return})
+				await interaction.editReply("moved")
+				await interaction.channel.send({embeds: [embedReply], components: [row]})
+			} catch (error) {
+				console.log("test")
+			}
+		}
+
+		if (interaction.customId === 'returnInterview') {
+
+			await interaction.reply("trying to move")
+
+			let channelId = ""
+
+			const userId = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'ID').map((field) => field.value)[0]
+			const teamName = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'TeamName').map((field) => field.value)[0]
+			const memb = await interaction.guild.members.fetch(userId).then(m => {return m})
+
+			const allTeamNameKeys = Object.keys(teamChannelId)
+            for (let index = 0; index < allTeamNameKeys.length; index++) {
+                const element = allTeamNameKeys[index];
+                if (element === teamName) {
+                    const entries = Object.entries(teamChannelId)
+					console.log(entries[index][1])
+                    channelId = entries[index][1]
+					break
+                }
+            }
+
+			const INTERVIEW_A_ID = process.env.INTERVIEW_A_ID;
+			const INTERVIEW_B_ID = process.env.INTERVIEW_B_ID;
+
+			const roleA = interaction.guild.roles.cache.get(INTERVIEW_A_ID)
+			const roleB = interaction.guild.roles.cache.get(INTERVIEW_B_ID)
+			memb.roles.remove(roleA)
+			memb.roles.remove(roleB)
+
 			try {
 				await memb.voice
 					.setChannel(channelId)

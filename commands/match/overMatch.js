@@ -109,7 +109,6 @@ async function getTeamChannelId(allRoles, channel) {
                     const entries = Object.entries(teamChannelId)
                     return entries[index][1]
                 }
-                
             }
         }
     }
