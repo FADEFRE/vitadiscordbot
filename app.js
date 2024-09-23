@@ -88,11 +88,17 @@ client.on(Events.InteractionCreate, async interaction => {
 			const userId = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'ID').map((field) => field.value)[0]
 			const teamName = interaction.message.embeds[0].data.fields.filter((fields) => fields.name === 'TeamFull').map((field) => field.value)[0]
 			const memb = await interaction.guild.members.fetch(userId).then(m => {return m})
+			let memberName = ""
+			if (memb.nickname === null) {
+				memberName = memb.user.username
+			} else {
+				memberName = memb.nickname
+			}
 
 			const embedReply = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .addFields(
-                    { name: 'Spieler', value: memb.nickname},
+                    { name: 'Spieler', value: memberName},
                     { name: 'TeamName', value: teamName},
                     { name: 'ID', value: userId },
                 )
