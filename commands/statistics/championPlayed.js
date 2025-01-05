@@ -213,14 +213,13 @@ module.exports = {
 
         const response = await axios.get("http://localhost:8090/api/champion/" + options.getString('champion_name') + "/matches/" + whatStat)
 
-        await createAndSendEmbeds(channel, response)
+        await createAndSendEmbeds(channel, response, whatStat)
 
         await interaction.editReply("Your requested stats:");
     },
 }
 
-async function createAndSendEmbeds(channel, response) {
-    console.log(response.data)
+async function createAndSendEmbeds(channel, response, whatStat) {
     const array = response.data.matches;
     const numberOfEmbeds = Math.ceil(array.length / 8)
     for (let index = 0; index < numberOfEmbeds; index++) {
@@ -228,19 +227,27 @@ async function createAndSendEmbeds(channel, response) {
         
         const embedPage = new EmbedBuilder()
                 .setColor(0x0099FF)
-                .setTitle(String(response.data.champion.name + "  -  Page " + page))
+                .setTitle(String(response.data.champion.name + " - " + whatStat + "  -  Page " + page))
 
         const start = 0 + index*8
         const normalEnd = start+8
-        const correctEnd = Math.min(normalEnd, array.length-1)
+        const correctEnd = Math.min(normalEnd, array.length)
         for (let j = start ; j < correctEnd; j++) {
             const element = array[j];
             const counter = j+1
+            let tOne = element.teamOne
+            let tTwo = element.teamTwo
+            if (element.pickedBannedBy === 1) {
+                tOne = String('**' + tOne + '**')
+            }
+            else if (element.pickedBannedBy === 2) {
+                tTwo = String('**' + tTwo + '**')
+            }
             embedPage.addFields(
-                { name: String("Match " + counter), value: String(element.teamOne + " vs " + element.teamTwo) },
+                { name: String("Match " + counter + ":"), value: String(tOne + " vs " + tTwo) },
                 { name: 'Winner', value: String(element.winner) },
             )
-            if (array.length-1 > j) {
+            if (j+1 < correctEnd) {
                 embedPage.addFields(
                     { name: '\u200B', value: '\u200B' },
                 )
